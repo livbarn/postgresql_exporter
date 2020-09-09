@@ -46,7 +46,7 @@ func (s *SlowQueryMetrics) Scrape(db *sql.DB) error {
 	var count float64
 	err := db.QueryRow(
 		`SELECT count(*) 
-				FROM monitoring.pg_stat_activity 
+				FROM pg_stat_activity 
 				WHERE state = 'active' AND 
 				NOW() - query_start > ($1 || ' milliseconds')::interval`,
 		s.milliseconds).Scan(&count)
@@ -57,7 +57,7 @@ func (s *SlowQueryMetrics) Scrape(db *sql.DB) error {
 
 	err = db.QueryRow(
 		`SELECT count(*) 
-				FROM monitoring.pg_stat_activity 
+				FROM pg_stat_activity 
 				WHERE state = 'active' AND 
 				NOW() - query_start > ($1 || ' milliseconds' )::interval AND 
 				query ilike 'select%'`,
@@ -69,7 +69,7 @@ func (s *SlowQueryMetrics) Scrape(db *sql.DB) error {
 
 	err = db.QueryRow(
 		`SELECT count(*) 
-				FROM monitoring.pg_stat_activity 
+				FROM pg_stat_activity 
 				WHERE state = 'active' AND 
 				NOW() - query_start > ($1 || ' milliseconds')::interval AND 
 				(query ilike 'insert%' OR query ilike 'update%' OR query ilike 'delete%')`,
