@@ -15,6 +15,7 @@ import (
 	"github.com/prometheus/log"
 
 	"github.com/mc2soft/postgresql_exporter/metrics"
+	Query "github.com/mc2soft/postgresql_exporter/queries"
 )
 
 const (
@@ -46,6 +47,7 @@ func NewPostgreSQLExporter(dsn string, cq []metrics.CustomQuery) *Exporter {
 		metrics: []metrics.Collection{
 			metrics.NewBufferMetrics(),
 			metrics.NewDBMetrics(strings.Split(*databases, ",")),
+			metrics.NewSQSMetrics(strings.Split(*databases, ","), *slow),
 			metrics.NewSlowQueryMetrics(*slow),
 			metrics.NewCustomQueryMetrics(cq),
 		},
@@ -150,7 +152,7 @@ func main() {
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(5)
 
-	exporter := NewPostgreSQLExporter(dsn, parseQueries(*queries))
+	exporter := NewPostgreSQLExporter(dsn, Query.ParseQueries(*queries))
 	prometheus.MustRegister(exporter)
 	http.Handle(*metricPath, prometheus.Handler())
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
